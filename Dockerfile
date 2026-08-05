@@ -126,6 +126,7 @@ RUN apt-get update \
     tmux \
     tree \
     unzip \
+    util-linux \
     valgrind \
     vim \
     wget \
@@ -172,9 +173,11 @@ RUN printf '%s\n' 'coder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/coder \
 
 COPY --from=builder /src/release /opt/code-server
 COPY ci/release-image/entrypoint.sh /usr/local/bin/code-server-entrypoint
+COPY ci/release-image/dev-entrypoint.sh /usr/local/bin/dev-entrypoint
 
 RUN ln -s /opt/code-server/bin/code-server /usr/bin/code-server \
   && chmod 0755 /usr/local/bin/code-server-entrypoint \
+  && chmod 0755 /usr/local/bin/dev-entrypoint \
   && mkdir -p \
     /workspace \
     /home/coder/.cache/ccache \
@@ -191,10 +194,9 @@ ENV EDITOR=vim
 ENV VISUAL=vim
 ENV CCACHE_DIR=/home/coder/.cache/ccache
 
-USER coder
 WORKDIR /workspace
 
 EXPOSE 8080
 
-ENTRYPOINT ["/usr/local/bin/code-server-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/dev-entrypoint"]
 CMD ["--bind-addr", "0.0.0.0:8080", "."]

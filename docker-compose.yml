@@ -39,8 +39,16 @@ services:
 
       # Git and SSH configuration.
       - ./data/code-server-config/ssh:/home/coder/.ssh
-      - ./data/code-server-config/gitconfig:/home/coder/.gitconfig
-      - ./data/code-server-config/git-credentials:/home/coder/.git-credentials
+      - type: bind
+        source: ./data/code-server-config/gitconfig
+        target: /home/coder/.gitconfig
+        bind:
+          create_host_path: false
+      - type: bind
+        source: ./data/code-server-config/git-credentials
+        target: /home/coder/.git-credentials
+        bind:
+          create_host_path: false
 
     cap_add:
       - SYS_PTRACE
