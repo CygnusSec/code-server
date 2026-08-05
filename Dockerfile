@@ -1,6 +1,7 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_IMAGE=node:24.18.0-bookworm
+ARG NODE_VERSION=24.18.0
+ARG NODE_IMAGE=node:${NODE_VERSION}-bookworm
 ARG BASE_IMAGE=debian:13
 ARG FIXUID_VERSION=0.6.0
 ARG VERSION=0.0.0
@@ -12,6 +13,7 @@ ARG USER_GID=1000
 FROM ${NODE_IMAGE} AS builder
 
 ARG DEBIAN_FRONTEND
+ARG NODE_VERSION
 ARG VERSION
 ARG VSCODE_COMMIT
 
@@ -67,7 +69,15 @@ RUN git init \
 
 RUN SKIP_SUBMODULE_DEPS=1 npm ci
 RUN npm run build
-RUN cd lib/vscode && npm ci
+# code-server runs the web/remote build with standalone Node, not Electron.
+# Override VS Code's desktop-oriented .npmrc so native modules are compiled
+# against the same Node headers bundled in the release.
+RUN cd lib/vscode \
+  && npm_config_runtime=node \
+    npm_config_target="${NODE_VERSION}" \
+    npm_config_disturl=https://nodejs.org/download/release \
+    npm_config_build_from_source=true \
+    npm ci
 RUN VERSION="${VERSION}" npm run build:vscode
 RUN KEEP_MODULES=1 npm run release
 
