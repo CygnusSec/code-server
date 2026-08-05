@@ -20,9 +20,9 @@ services:
     command:
       - --bind-addr
       - 0.0.0.0:8080
-      - /workspace
+      - /home/coder/workspace
 
-    working_dir: /workspace
+    working_dir: /home/coder/workspace
 
     ports:
       # Bind to 127.0.0.1 instead when publishing through a reverse proxy.

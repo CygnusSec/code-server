@@ -188,13 +188,11 @@ RUN printf '%s\n' 'coder ALL=(ALL) NOPASSWD:ALL' >/etc/sudoers.d/coder \
 
 COPY --from=builder /src/release /opt/code-server
 COPY ci/release-image/entrypoint.sh /usr/local/bin/code-server-entrypoint
-COPY ci/release-image/dev-entrypoint.sh /usr/local/bin/dev-entrypoint
 
 RUN ln -s /opt/code-server/bin/code-server /usr/bin/code-server \
   && chmod 0755 /usr/local/bin/code-server-entrypoint \
-  && chmod 0755 /usr/local/bin/dev-entrypoint \
   && mkdir -p \
-    /workspace \
+    /home/coder/workspace \
     /home/coder/.cache/ccache \
     /home/coder/.config/code-server \
     /home/coder/.local/share/code-server \
@@ -210,10 +208,9 @@ ENV VISUAL=vim
 ENV CCACHE_DIR=/home/coder/.cache/ccache
 
 USER coder
-
 WORKDIR /home/coder/workspace
 
 EXPOSE 8080
 
-ENTRYPOINT ["/usr/local/bin/dev-entrypoint"]
+ENTRYPOINT ["/usr/local/bin/code-server-entrypoint"]
 CMD ["--bind-addr", "0.0.0.0:8080", "."]
