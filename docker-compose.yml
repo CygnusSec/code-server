@@ -30,7 +30,7 @@ services:
 
     volumes:
       # Development projects.
-      - ./data/workspace:/workspace
+      - ./data/workspace:/home/coder/workspace
 
       # code-server configuration, extensions, state, and caches.
       - ./data/code-server-config/config:/home/coder/.config

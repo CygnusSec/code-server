@@ -185,7 +185,7 @@ RUN ln -s /opt/code-server/bin/code-server /usr/bin/code-server \
     /home/coder/.local/share/code-server \
     /home/coder/.ssh \
     /home/coder/entrypoint.d \
-  && chown -R coder:coder /workspace /home/coder
+  && chown -R coder:coder /home/coder
 
 ENV ENTRYPOINTD=/home/coder/entrypoint.d
 ENV LANG=C.UTF-8
@@ -194,7 +194,9 @@ ENV EDITOR=vim
 ENV VISUAL=vim
 ENV CCACHE_DIR=/home/coder/.cache/ccache
 
-WORKDIR /workspace
+USER coder
+
+WORKDIR /home/coder/workspace
 
 EXPOSE 8080
 
