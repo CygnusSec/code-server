@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_IMAGE=node:24.18.0-trixie
+ARG NODE_IMAGE=node:24.18.0-bookworm
 ARG BASE_IMAGE=debian:13
 ARG FIXUID_VERSION=0.6.0
 ARG VERSION=0.0.0
@@ -18,7 +18,6 @@ ARG VSCODE_COMMIT
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     build-essential \
-    clang \
     git \
     git-lfs \
     jq \
@@ -26,7 +25,6 @@ RUN apt-get update \
     libsecret-1-dev \
     libx11-dev \
     libxkbfile-dev \
-    pkg-config \
     python-is-python3 \
     quilt \
     rsync \
@@ -35,8 +33,10 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
-ENV CC=clang
-ENV CXX=clang++
+ENV CI=1
+ENV DISABLE_V8_COMPILE_CACHE=1
+ENV ELECTRON_SKIP_BINARY_DOWNLOAD=1
+ENV PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD=1
 COPY . .
 
 # Use the local submodule content when available; otherwise fetch the exact
@@ -65,8 +65,9 @@ RUN git init \
     git -C lib/vscode commit -m patched-product; \
   fi
 
-RUN npm ci
+RUN SKIP_SUBMODULE_DEPS=1 npm ci
 RUN npm run build
+RUN cd lib/vscode && npm ci
 RUN VERSION="${VERSION}" npm run build:vscode
 RUN KEEP_MODULES=1 npm run release
 
