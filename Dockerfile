@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_IMAGE=node:24.18.0-bookworm
+ARG NODE_IMAGE=node:24.18.0-trixie
 ARG BASE_IMAGE=debian:13
 ARG FIXUID_VERSION=0.6.0
 ARG VERSION=0.0.0
@@ -18,6 +18,7 @@ ARG VSCODE_COMMIT
 RUN apt-get update \
   && apt-get install -y --no-install-recommends \
     build-essential \
+    clang \
     git \
     git-lfs \
     jq \
@@ -25,6 +26,7 @@ RUN apt-get update \
     libsecret-1-dev \
     libx11-dev \
     libxkbfile-dev \
+    pkg-config \
     python-is-python3 \
     quilt \
     rsync \
@@ -33,6 +35,8 @@ RUN apt-get update \
   && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
+ENV CC=clang
+ENV CXX=clang++
 COPY . .
 
 # Use the local submodule content when available; otherwise fetch the exact
