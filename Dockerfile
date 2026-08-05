@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 
-ARG NODE_IMAGE=node:22-bookworm
+ARG NODE_IMAGE=node:24.18.0-bookworm
 ARG BASE_IMAGE=debian:13
 ARG FIXUID_VERSION=0.6.0
 ARG VERSION=0.0.0
