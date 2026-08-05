@@ -1,0 +1,60 @@
+services:
+  code-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_UID: "${USER_UID:-1000}"
+        USER_GID: "${USER_GID:-1000}"
+        VERSION: "${CODE_SERVER_VERSION:-4.131.0}"
+
+    image: code-server-dev:local
+    container_name: code-server
+    hostname: code-server
+    restart: unless-stopped
+
+    environment:
+      TZ: Asia/Ho_Chi_Minh
+      PASSWORD: "${CODE_SERVER_PASSWORD:?CODE_SERVER_PASSWORD must be set}"
+
+    command:
+      - --bind-addr
+      - 0.0.0.0:8080
+      - /workspace
+
+    working_dir: /workspace
+
+    ports:
+      # Bind to 127.0.0.1 instead when publishing through a reverse proxy.
+      - "${CODE_SERVER_PORT:-8080}:8080"
+
+    volumes:
+      # Development projects.
+      - ./data/workspace:/workspace
+
+      # code-server configuration, extensions, state, and caches.
+      - ./data/code-server-config/config:/home/coder/.config
+      - ./data/code-server-config/local:/home/coder/.local
+      - ./data/code-server-config/cache:/home/coder/.cache
+
+      # Git and SSH configuration.
+      - ./data/code-server-config/ssh:/home/coder/.ssh
+      - ./data/code-server-config/gitconfig:/home/coder/.gitconfig
+      - ./data/code-server-config/git-credentials:/home/coder/.git-credentials
+
+    cap_add:
+      - SYS_PTRACE
+
+    security_opt:
+      - seccomp:unconfined
+
+    shm_size: 2gb
+
+    healthcheck:
+      test:
+        - CMD-SHELL
+        - curl --fail --silent http://127.0.0.1:8080/healthz || exit 1
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
